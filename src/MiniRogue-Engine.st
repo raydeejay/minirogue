@@ -126,13 +126,17 @@ width: aWidth height: aHeight
 ! !
 
 Object subclass: #MapCarver
-	instanceVariableNames: 'board region'
+	instanceVariableNames: 'board region lastDirection chanceToTurn'
 	package: 'MiniRogue-Engine'!
 
 !MapCarver methodsFor: 'accessing'!
 
 board: anObject
 	board := anObject
+!
+
+chanceToTurn: aNumber
+	chanceToTurn := aNumber
 !
 
 directions
@@ -168,11 +172,18 @@ carveAt: aPoint
 !
 
 carveFromStack: aStack
-	| top position dir |
+	| top position candidate dir |
 			
 	top := aStack last.
 	position := top key.
-	dir := top value remove: top value atRandom.
+
+	candidate := (100 atRandom <= chanceToTurn)
+		ifTrue: [ top value atRandom ]
+		ifFalse: [ top value
+			detect: [ :each | each = lastDirection ]
+			ifNone: [ top value atRandom ] ].
+	dir := top value remove: candidate.
+	lastDirection := dir.
 
 	top value ifEmpty: [ aStack removeLast ].
 	(((board at: position + dir ifAbsent: [ #none ]) = #wall)
@@ -200,6 +211,8 @@ initialize
 	super initialize.
 	board ifNil: [ self error: 'Create instances of ', self class name, ' with #on:' ].
 	region := 1.
+	lastDirection := nil.
+	chanceToTurn := 0.
 	board fillWith: #wall
 ! !
 
@@ -228,7 +241,7 @@ on: aBoard
 ! !
 
 Widget subclass: #MapGenerator
-	instanceVariableNames: 'board carver regions connectors output roomAttempts chanceToFill'
+	instanceVariableNames: 'board carver regions connectors output roomAttempts chanceToFill chanceToTurn chanceToExtraConnections'
 	package: 'MiniRogue-Engine'!
 
 !MapGenerator methodsFor: 'accessing'!
@@ -237,8 +250,16 @@ board: anObject
 	board := anObject
 !
 
+chanceToExtraConnections: aNumber
+	chanceToExtraConnections := aNumber
+!
+
 chanceToFill: aNumber
 	chanceToFill := aNumber
+!
+
+chanceToTurn: aNumber
+	chanceToTurn := aNumber
 !
 
 directions
@@ -303,7 +324,9 @@ fillDeadEnds
 
 generate
 	board fillWith: #wall.
-	carver := MapCarver on: board.
+	carver := (MapCarver on: board)
+		chanceToTurn: chanceToTurn;
+		yourself.
 	self generateRooms generatePassages cacheRegions mergeRegions fillDeadEnds
 !
 
@@ -362,6 +385,7 @@ initialize
 	super initialize.
 	board ifNil: [ board := (Board width: 45 height: 45)].
 	roomAttempts := 30.
+	chanceToTurn := 10.
 ! !
 
 !MapGenerator methodsFor: 'merging'!
@@ -370,8 +394,11 @@ mergeRegions
 	self cacheConnectors.
 	connectors
 		valuesDo: [ :points |
-			"10% chance to carve another opening?"
-			carver carveAt: points atRandom ]
+			carver carveAt: points atRandom.
+			[ 100 atRandom < chanceToExtraConnections ]
+				whileTrue: [
+					"note that this may very well merge at the same point again"
+					carver carveAt: points atRandom ] ]
 ! !
 
 !MapGenerator methodsFor: 'printing'!

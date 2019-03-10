@@ -11,6 +11,7 @@ I also happen to subclass Game.!
 !MiniRogue methodsFor: 'initialization'!
 
 initialize
+	super initialize.
 	self class instance: self
 ! !
 
@@ -29,6 +30,8 @@ augmentPage
 				board: (Board extent: w@h);
 				roomAttempts: '#attempts' asJQuery val asNumber;
 				chanceToFill: '#chance' asJQuery val asNumber;
+				chanceToTurn: '#turn' asJQuery val asNumber;
+				chanceToExtraConnections: '#connections' asJQuery val asNumber;
 				generate;
 				update ].
 	map := MapGenerator new generate appendToJQuery: '#dungeon' asJQuery

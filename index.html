@@ -16,11 +16,16 @@
 
 <body>
 
-<div id="dungeon">
-  <input type="number" id="width" value="45" style="width: 40px" /> x <input type="number" id="height" value="45" style="width: 40px" />
-  Room attempts <input type="number" id="attempts" value="30" style="width: 40px" />
-  Chance to fill <input type="number" id="chance" value="90" style="width: 40px" />
-  <button id="generateBtn">Generate map</button>
+<div id="dungeon" style="">
+</div>
+
+<div id="controls" style="">
+  <p> <input type="number" id="width" value="45" style="width: 40px" /> x <input type="number" id="height" value="45" style="width: 40px" />
+  <p> Room attempts <input type="number" id="attempts" value="30" style="width: 40px" />
+  <p> Chance to fill <input type="number" id="chance" value="90" style="width: 40px" />
+  <p> Chance to turn <input type="number" id="turn" value="10" style="width: 40px" />
+  <p> Chance of extra connections between regions <input type="number" id="connections" value="10" style="width: 40px" />
+  <p> <button id="generateBtn">Generate map</button>
 </div>
 
 <script type='text/javascript'>

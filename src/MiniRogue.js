@@ -28,7 +28,7 @@ var map;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
-var $1,$3,$2,$5,$4,$6,$9,$8,$7,$12,$11,$10;
+var $1,$3,$2,$5,$4,$6,$9,$8,$7,$12,$11,$10,$15,$14,$13,$18,$17,$16;
 $1="#generateBtn"._asJQuery();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["asJQuery"]=1;
@@ -82,8 +82,34 @@ $12="#chance"._asJQuery();
 $ctx2.sendIdx["asJQuery"]=5;
 //>>excludeEnd("ctx");
 $11=$recv($12)._val();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["val"]=4;
+//>>excludeEnd("ctx");
 $10=$recv($11)._asNumber();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["asNumber"]=4;
+//>>excludeEnd("ctx");
 $recv($6)._chanceToFill_($10);
+$15="#turn"._asJQuery();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["asJQuery"]=6;
+//>>excludeEnd("ctx");
+$14=$recv($15)._val();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["val"]=5;
+//>>excludeEnd("ctx");
+$13=$recv($14)._asNumber();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["asNumber"]=5;
+//>>excludeEnd("ctx");
+$recv($6)._chanceToTurn_($13);
+$18="#connections"._asJQuery();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["asJQuery"]=7;
+//>>excludeEnd("ctx");
+$17=$recv($18)._val();
+$16=$recv($17)._asNumber();
+$recv($6)._chanceToExtraConnections_($16);
 $recv($6)._generate();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx2.sendIdx["generate"]=1;
@@ -101,10 +127,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "augmentPage\x0a\x09| map |\x0a\x09\x0a\x09'#generateBtn' asJQuery\x0a\x09\x09click: [\x0a\x09\x09\x09| w h |\x0a\x09\x09\x09\x0a\x09\x09\x09w := '#width' asJQuery val asNumber.\x0a\x09\x09\x09h := '#height' asJQuery val asNumber.\x0a\x09\x09\x09map\x0a\x09\x09\x09\x09board: (Board extent: w@h);\x0a\x09\x09\x09\x09roomAttempts: '#attempts' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToFill: '#chance' asJQuery val asNumber;\x0a\x09\x09\x09\x09generate;\x0a\x09\x09\x09\x09update ].\x0a\x09map := MapGenerator new generate appendToJQuery: '#dungeon' asJQuery",
+source: "augmentPage\x0a\x09| map |\x0a\x09\x0a\x09'#generateBtn' asJQuery\x0a\x09\x09click: [\x0a\x09\x09\x09| w h |\x0a\x09\x09\x09\x0a\x09\x09\x09w := '#width' asJQuery val asNumber.\x0a\x09\x09\x09h := '#height' asJQuery val asNumber.\x0a\x09\x09\x09map\x0a\x09\x09\x09\x09board: (Board extent: w@h);\x0a\x09\x09\x09\x09roomAttempts: '#attempts' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToFill: '#chance' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToTurn: '#turn' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToExtraConnections: '#connections' asJQuery val asNumber;\x0a\x09\x09\x09\x09generate;\x0a\x09\x09\x09\x09update ].\x0a\x09map := MapGenerator new generate appendToJQuery: '#dungeon' asJQuery",
 referencedClasses: ["Board", "MapGenerator"],
 //>>excludeEnd("ide");
-messageSends: ["click:", "asJQuery", "asNumber", "val", "board:", "extent:", "@", "roomAttempts:", "chanceToFill:", "generate", "update", "appendToJQuery:", "new"]
+messageSends: ["click:", "asJQuery", "asNumber", "val", "board:", "extent:", "@", "roomAttempts:", "chanceToFill:", "chanceToTurn:", "chanceToExtraConnections:", "generate", "update", "appendToJQuery:", "new"]
 }),
 $globals.MiniRogue);
 
@@ -117,6 +143,14 @@ var self=this,$self=this;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
+(
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.supercall = true,
+//>>excludeEnd("ctx");
+($globals.MiniRogue.superclass||$boot.nilAsClass).fn.prototype._initialize.apply($self, []));
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.supercall = false;
+//>>excludeEnd("ctx");;
 $recv($self._class())._instance_(self);
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
@@ -125,10 +159,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "initialize\x0a\x09self class instance: self",
+source: "initialize\x0a\x09super initialize.\x0a\x09self class instance: self",
 referencedClasses: [],
 //>>excludeEnd("ide");
-messageSends: ["instance:", "class"]
+messageSends: ["initialize", "instance:", "class"]
 }),
 $globals.MiniRogue);
 

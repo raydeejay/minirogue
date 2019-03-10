@@ -714,7 +714,7 @@ messageSends: ["width:", "basicNew", "height:", "initialize", "yourself"]
 $globals.Board.a$cls);
 
 
-$core.addClass("MapCarver", $globals.Object, ["board", "region"], "MiniRogue-Engine");
+$core.addClass("MapCarver", $globals.Object, ["board", "region", "lastDirection", "chanceToTurn"], "MiniRogue-Engine");
 $core.addMethod(
 $core.method({
 selector: "board:",
@@ -975,36 +975,76 @@ selector: "carveFromStack:",
 protocol: "carving",
 fn: function (aStack){
 var self=this,$self=this;
-var top,position,dir;
+var top,position,candidate,dir;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
-var $1,$3,$2,$4,$5;
+var $2,$1,$3,$4,$5,$6,$7,$8;
 top=$recv(aStack)._last();
 position=$recv(top)._key();
-$1=$recv(top)._value();
+$2=(100)._atRandom();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["atRandom"]=1;
+//>>excludeEnd("ctx");
+$1=$recv($2).__lt_eq($self["@chanceToTurn"]);
+if($core.assert($1)){
+$3=$recv(top)._value();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["value"]=1;
 //>>excludeEnd("ctx");
-$3=$recv(top)._value();
+candidate=$recv($3)._atRandom();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["atRandom"]=2;
+//>>excludeEnd("ctx");
+} else {
+$4=$recv(top)._value();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["value"]=2;
 //>>excludeEnd("ctx");
-$2=$recv($3)._atRandom();
-dir=$recv($1)._remove_($2);
+candidate=$recv($4)._detect_ifNone_((function(each){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx2) {
+//>>excludeEnd("ctx");
+return $recv(each).__eq($self["@lastDirection"]);
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["="]=1;
+//>>excludeEnd("ctx");
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx2) {$ctx2.fillBlock({each:each},$ctx1,3)});
+//>>excludeEnd("ctx");
+}),(function(){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx2) {
+//>>excludeEnd("ctx");
+$5=$recv(top)._value();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["value"]=3;
+//>>excludeEnd("ctx");
+return $recv($5)._atRandom();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx2) {$ctx2.fillBlock({},$ctx1,4)});
+//>>excludeEnd("ctx");
+}));
+}
+$6=$recv(top)._value();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["value"]=4;
+//>>excludeEnd("ctx");
+dir=$recv($6)._remove_(candidate);
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["remove:"]=1;
 //>>excludeEnd("ctx");
+$self["@lastDirection"]=dir;
 $recv($recv(top)._value())._ifEmpty_((function(){
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx2) {
 //>>excludeEnd("ctx");
 return $recv(aStack)._removeLast();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx2) {$ctx2.fillBlock({},$ctx1,1)});
+}, function($ctx2) {$ctx2.fillBlock({},$ctx1,5)});
 //>>excludeEnd("ctx");
 }));
-$4=$recv($recv($recv($self["@board"])._at_ifAbsent_($recv(position).__plus(dir),(function(){
+$7=$recv($recv($recv($self["@board"])._at_ifAbsent_($recv(position).__plus(dir),(function(){
 return "none";
 
 }))).__eq("wall"))._and_((function(){
@@ -1013,28 +1053,28 @@ return $core.withContext(function($ctx2) {
 //>>excludeEnd("ctx");
 return $self._canCarveAt_towards_(position,dir);
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx2) {$ctx2.fillBlock({},$ctx1,3)});
+}, function($ctx2) {$ctx2.fillBlock({},$ctx1,7)});
 //>>excludeEnd("ctx");
 }));
-if($core.assert($4)){
+if($core.assert($7)){
 var newPosition,newDirs;
 newPosition=$self._carve_towards_at_((2),dir,position);
-$5=$self._directions();
-$recv($5)._remove_($recv(dir).__star((-1)));
-newDirs=$recv($5)._yourself();
+$8=$self._directions();
+$recv($8)._remove_($recv(dir).__star((-1)));
+newDirs=$recv($8)._yourself();
 $recv(aStack)._add_($recv(newPosition).__minus_gt(newDirs));
 }
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx1) {$ctx1.fill(self,"carveFromStack:",{aStack:aStack,top:top,position:position,dir:dir},$globals.MapCarver)});
+}, function($ctx1) {$ctx1.fill(self,"carveFromStack:",{aStack:aStack,top:top,position:position,candidate:candidate,dir:dir},$globals.MapCarver)});
 //>>excludeEnd("ctx");
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: ["aStack"],
-source: "carveFromStack: aStack\x0a\x09| top position dir |\x0a\x09\x09\x09\x0a\x09top := aStack last.\x0a\x09position := top key.\x0a\x09dir := top value remove: top value atRandom.\x0a\x0a\x09top value ifEmpty: [ aStack removeLast ].\x0a\x09(((board at: position + dir ifAbsent: [ #none ]) = #wall)\x0a\x09\x09and: [ self canCarveAt: position towards: dir ])\x0a\x09\x09\x09ifTrue: [\x0a\x09\x09\x09\x09| newPosition newDirs |\x0a\x09\x09\x09\x09\x0a\x09\x09\x09\x09newPosition := self carve: 2 towards: dir at: position.\x0a\x09\x09\x09\x09newDirs := self directions remove: (dir * -1); yourself.\x0a\x09\x09\x09\x09aStack add: newPosition -> newDirs ]",
+source: "carveFromStack: aStack\x0a\x09| top position candidate dir |\x0a\x09\x09\x09\x0a\x09top := aStack last.\x0a\x09position := top key.\x0a\x0a\x09candidate := (100 atRandom <= chanceToTurn)\x0a\x09\x09ifTrue: [ top value atRandom ]\x0a\x09\x09ifFalse: [ top value\x0a\x09\x09\x09detect: [ :each | each = lastDirection ]\x0a\x09\x09\x09ifNone: [ top value atRandom ] ].\x0a\x09dir := top value remove: candidate.\x0a\x09lastDirection := dir.\x0a\x0a\x09top value ifEmpty: [ aStack removeLast ].\x0a\x09(((board at: position + dir ifAbsent: [ #none ]) = #wall)\x0a\x09\x09and: [ self canCarveAt: position towards: dir ])\x0a\x09\x09\x09ifTrue: [\x0a\x09\x09\x09\x09| newPosition newDirs |\x0a\x09\x09\x09\x09\x0a\x09\x09\x09\x09newPosition := self carve: 2 towards: dir at: position.\x0a\x09\x09\x09\x09newDirs := self directions remove: (dir * -1); yourself.\x0a\x09\x09\x09\x09aStack add: newPosition -> newDirs ]",
 referencedClasses: [],
 //>>excludeEnd("ide");
-messageSends: ["last", "key", "remove:", "value", "atRandom", "ifEmpty:", "removeLast", "ifTrue:", "and:", "=", "at:ifAbsent:", "+", "canCarveAt:towards:", "carve:towards:at:", "directions", "*", "yourself", "add:", "->"]
+messageSends: ["last", "key", "ifTrue:ifFalse:", "<=", "atRandom", "value", "detect:ifNone:", "=", "remove:", "ifEmpty:", "removeLast", "ifTrue:", "and:", "at:ifAbsent:", "+", "canCarveAt:towards:", "carve:towards:at:", "directions", "*", "yourself", "add:", "->"]
 }),
 $globals.MapCarver);
 
@@ -1102,6 +1142,25 @@ source: "carveRoom: aRoom\x0a\x09(aRoom origin y to: aRoom corner y)\x0a\x09\x09
 referencedClasses: [],
 //>>excludeEnd("ide");
 messageSends: ["do:", "to:", "y", "origin", "corner", "x", "at:put:", "@", "incrementRegion"]
+}),
+$globals.MapCarver);
+
+$core.addMethod(
+$core.method({
+selector: "chanceToTurn:",
+protocol: "accessing",
+fn: function (aNumber){
+var self=this,$self=this;
+$self["@chanceToTurn"]=aNumber;
+return self;
+
+},
+//>>excludeStart("ide", pragmas.excludeIdeData);
+args: ["aNumber"],
+source: "chanceToTurn: aNumber\x0a\x09chanceToTurn := aNumber",
+referencedClasses: [],
+//>>excludeEnd("ide");
+messageSends: []
 }),
 $globals.MapCarver);
 
@@ -1194,6 +1253,8 @@ $self._error_($2);
 $1;
 }
 $self["@region"]=(1);
+$self["@lastDirection"]=nil;
+$self["@chanceToTurn"]=(0);
 $recv($self["@board"])._fillWith_("wall");
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
@@ -1202,7 +1263,7 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ self error: 'Create instances of ', self class name, ' with #on:' ].\x0a\x09region := 1.\x0a\x09board fillWith: #wall",
+source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ self error: 'Create instances of ', self class name, ' with #on:' ].\x0a\x09region := 1.\x0a\x09lastDirection := nil.\x0a\x09chanceToTurn := 0.\x0a\x09board fillWith: #wall",
 referencedClasses: [],
 //>>excludeEnd("ide");
 messageSends: ["initialize", "ifNil:", "error:", ",", "name", "class", "fillWith:"]
@@ -1256,7 +1317,7 @@ messageSends: ["board:", "basicNew", "initialize", "yourself"]
 $globals.MapCarver.a$cls);
 
 
-$core.addClass("MapGenerator", $globals.Widget, ["board", "carver", "regions", "connectors", "output", "roomAttempts", "chanceToFill"], "MiniRogue-Engine");
+$core.addClass("MapGenerator", $globals.Widget, ["board", "carver", "regions", "connectors", "output", "roomAttempts", "chanceToFill", "chanceToTurn", "chanceToExtraConnections"], "MiniRogue-Engine");
 $core.addMethod(
 $core.method({
 selector: "board:",
@@ -1440,6 +1501,25 @@ $globals.MapGenerator);
 
 $core.addMethod(
 $core.method({
+selector: "chanceToExtraConnections:",
+protocol: "accessing",
+fn: function (aNumber){
+var self=this,$self=this;
+$self["@chanceToExtraConnections"]=aNumber;
+return self;
+
+},
+//>>excludeStart("ide", pragmas.excludeIdeData);
+args: ["aNumber"],
+source: "chanceToExtraConnections: aNumber\x0a\x09chanceToExtraConnections := aNumber",
+referencedClasses: [],
+//>>excludeEnd("ide");
+messageSends: []
+}),
+$globals.MapGenerator);
+
+$core.addMethod(
+$core.method({
 selector: "chanceToFill:",
 protocol: "accessing",
 fn: function (aNumber){
@@ -1451,6 +1531,25 @@ return self;
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: ["aNumber"],
 source: "chanceToFill: aNumber\x0a\x09chanceToFill := aNumber",
+referencedClasses: [],
+//>>excludeEnd("ide");
+messageSends: []
+}),
+$globals.MapGenerator);
+
+$core.addMethod(
+$core.method({
+selector: "chanceToTurn:",
+protocol: "accessing",
+fn: function (aNumber){
+var self=this,$self=this;
+$self["@chanceToTurn"]=aNumber;
+return self;
+
+},
+//>>excludeStart("ide", pragmas.excludeIdeData);
+args: ["aNumber"],
+source: "chanceToTurn: aNumber\x0a\x09chanceToTurn := aNumber",
 referencedClasses: [],
 //>>excludeEnd("ide");
 messageSends: []
@@ -1580,8 +1679,11 @@ var self=this,$self=this;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
+var $1;
 $recv($self["@board"])._fillWith_("wall");
-$self["@carver"]=$recv($globals.MapCarver)._on_($self["@board"]);
+$1=$recv($globals.MapCarver)._on_($self["@board"]);
+$recv($1)._chanceToTurn_($self["@chanceToTurn"]);
+$self["@carver"]=$recv($1)._yourself();
 $recv($recv($recv($recv($self._generateRooms())._generatePassages())._cacheRegions())._mergeRegions())._fillDeadEnds();
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
@@ -1590,10 +1692,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "generate\x0a\x09board fillWith: #wall.\x0a\x09carver := MapCarver on: board.\x0a\x09self generateRooms generatePassages cacheRegions mergeRegions fillDeadEnds\x0a\x09",
+source: "generate\x0a\x09board fillWith: #wall.\x0a\x09carver := (MapCarver on: board)\x0a\x09\x09chanceToTurn: chanceToTurn;\x0a\x09\x09yourself.\x0a\x09self generateRooms generatePassages cacheRegions mergeRegions fillDeadEnds\x0a\x09",
 referencedClasses: ["MapCarver"],
 //>>excludeEnd("ide");
-messageSends: ["fillWith:", "on:", "fillDeadEnds", "mergeRegions", "cacheRegions", "generatePassages", "generateRooms"]
+messageSends: ["fillWith:", "chanceToTurn:", "on:", "yourself", "fillDeadEnds", "mergeRegions", "cacheRegions", "generatePassages", "generateRooms"]
 }),
 $globals.MapGenerator);
 
@@ -1844,6 +1946,7 @@ $self["@board"];
 $1;
 }
 $self["@roomAttempts"]=(30);
+$self["@chanceToTurn"]=(10);
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx1) {$ctx1.fill(self,"initialize",{},$globals.MapGenerator)});
@@ -1851,7 +1954,7 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ board := (Board width: 45 height: 45)].\x0a\x09roomAttempts := 30.",
+source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ board := (Board width: 45 height: 45)].\x0a\x09roomAttempts := 30.\x0a\x09chanceToTurn := 10.",
 referencedClasses: ["Board"],
 //>>excludeEnd("ide");
 messageSends: ["initialize", "ifNil:", "width:height:"]
@@ -1867,12 +1970,42 @@ var self=this,$self=this;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
+var $1,$2,$3;
 $self._cacheConnectors();
 $recv($self["@connectors"])._valuesDo_((function(points){
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx2) {
 //>>excludeEnd("ctx");
+$1=$self["@carver"];
+$2=$recv(points)._atRandom();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["atRandom"]=1;
+//>>excludeEnd("ctx");
+$recv($1)._carveAt_($2);
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["carveAt:"]=1;
+//>>excludeEnd("ctx");
+return $recv((function(){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx3) {
+//>>excludeEnd("ctx");
+$3=(100)._atRandom();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx3.sendIdx["atRandom"]=2;
+//>>excludeEnd("ctx");
+return $recv($3).__lt($self["@chanceToExtraConnections"]);
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx3) {$ctx3.fillBlock({},$ctx2,2)});
+//>>excludeEnd("ctx");
+}))._whileTrue_((function(){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx3) {
+//>>excludeEnd("ctx");
 return $recv($self["@carver"])._carveAt_($recv(points)._atRandom());
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx3) {$ctx3.fillBlock({},$ctx2,3)});
+//>>excludeEnd("ctx");
+}));
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx2) {$ctx2.fillBlock({points:points},$ctx1,1)});
 //>>excludeEnd("ctx");
@@ -1884,10 +2017,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "mergeRegions\x0a\x09self cacheConnectors.\x0a\x09connectors\x0a\x09\x09valuesDo: [ :points |\x0a\x09\x09\x09\x2210% chance to carve another opening?\x22\x0a\x09\x09\x09carver carveAt: points atRandom ]",
+source: "mergeRegions\x0a\x09self cacheConnectors.\x0a\x09connectors\x0a\x09\x09valuesDo: [ :points |\x0a\x09\x09\x09carver carveAt: points atRandom.\x0a\x09\x09\x09[ 100 atRandom < chanceToExtraConnections ]\x0a\x09\x09\x09\x09whileTrue: [\x0a\x09\x09\x09\x09\x09\x22note that this may very well merge at the same point again\x22\x0a\x09\x09\x09\x09\x09carver carveAt: points atRandom ] ]",
 referencedClasses: [],
 //>>excludeEnd("ide");
-messageSends: ["cacheConnectors", "valuesDo:", "carveAt:", "atRandom"]
+messageSends: ["cacheConnectors", "valuesDo:", "carveAt:", "atRandom", "whileTrue:", "<"]
 }),
 $globals.MapGenerator);
 
