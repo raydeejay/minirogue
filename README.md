@@ -1,6 +1,6 @@
-# PixiGame
+# MiniRogue
 
-Pixi.js demo stuff
+Demo stuff
 
 ## Getting Started
 
