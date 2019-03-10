@@ -1947,6 +1947,7 @@ $1;
 }
 $self["@roomAttempts"]=(30);
 $self["@chanceToTurn"]=(10);
+$self["@output"]="#dungeon"._asJQuery();
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx1) {$ctx1.fill(self,"initialize",{},$globals.MapGenerator)});
@@ -1954,10 +1955,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ board := (Board width: 45 height: 45)].\x0a\x09roomAttempts := 30.\x0a\x09chanceToTurn := 10.",
+source: "initialize\x0a\x09super initialize.\x0a\x09board ifNil: [ board := (Board width: 45 height: 45)].\x0a\x09roomAttempts := 30.\x0a\x09chanceToTurn := 10.\x0a\x09output := '#dungeon' asJQuery",
 referencedClasses: ["Board"],
 //>>excludeEnd("ide");
-messageSends: ["initialize", "ifNil:", "width:height:"]
+messageSends: ["initialize", "ifNil:", "width:height:", "asJQuery"]
 }),
 $globals.MapGenerator);
 
@@ -2153,38 +2154,92 @@ $globals.MapGenerator);
 
 $core.addMethod(
 $core.method({
-selector: "renderDebugOn:",
+selector: "render",
 protocol: "rendering",
-fn: function (html){
+fn: function (){
 var self=this,$self=this;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
-var $1,$3,$7,$8,$6,$5,$4,$2;
-$1=$recv(html)._pre();
-$3=(1)._to_($recv($self["@board"])._height());
+var $2,$4,$3,$1;
+$2=(1)._to_($recv($self["@board"])._height());
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["to:"]=1;
 //>>excludeEnd("ctx");
-$2=$recv($3)._collect_((function(y){
+$1=$recv($2)._collect_((function(y){
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx2) {
 //>>excludeEnd("ctx");
-$4=$recv((1)._to_($recv($self["@board"])._width()))._collect_((function(x){
+$3=$recv((1)._to_($recv($self["@board"])._width()))._collect_((function(x){
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx3) {
 //>>excludeEnd("ctx");
-$7=$self["@board"];
-$8=$recv(x).__at(y);
+$4=$recv($recv($self["@board"])._at_($recv(x).__at(y))).__eq("wall");
+if($core.assert($4)){
+return "█";
+} else {
+return "░";
+}
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx3) {$ctx3.fillBlock({x:x},$ctx2,2)});
+//>>excludeEnd("ctx");
+}));
+$recv($3)._add_($recv($globals.String)._crlf());
+return $recv($3)._yourself();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx2) {$ctx2.fillBlock({y:y},$ctx1,1)});
+//>>excludeEnd("ctx");
+}));
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["collect:"]=1;
+//>>excludeEnd("ctx");
+return $1;
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx1) {$ctx1.fill(self,"render",{},$globals.MapGenerator)});
+//>>excludeEnd("ctx");
+},
+//>>excludeStart("ide", pragmas.excludeIdeData);
+args: [],
+source: "render\x0a\x09^ (1 to: board height) collect: [ :y |\x0a \x09\x09((1 to: board width) collect: [ :x |\x0a\x09\x09\x09((board at: x@y) = #wall\x0a\x09\x09\x09\x09ifTrue: [ '█']\x0a\x09\x09\x09\x09ifFalse: [ '░' ]) ])\x0a\x09\x09\x09\x09\x09add: String crlf;\x0a\x09\x09\x09\x09\x09yourself ]",
+referencedClasses: ["String"],
+//>>excludeEnd("ide");
+messageSends: ["collect:", "to:", "height", "add:", "width", "ifTrue:ifFalse:", "=", "at:", "@", "crlf", "yourself"]
+}),
+$globals.MapGenerator);
+
+$core.addMethod(
+$core.method({
+selector: "renderDebug",
+protocol: "rendering",
+fn: function (){
+var self=this,$self=this;
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx1) {
+//>>excludeEnd("ctx");
+var $2,$6,$7,$5,$4,$3,$1;
+$2=(1)._to_($recv($self["@board"])._height());
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["to:"]=1;
+//>>excludeEnd("ctx");
+$1=$recv($2)._collect_((function(y){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx2) {
+//>>excludeEnd("ctx");
+$3=$recv((1)._to_($recv($self["@board"])._width()))._collect_((function(x){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx3) {
+//>>excludeEnd("ctx");
+$6=$self["@board"];
+$7=$recv(x).__at(y);
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx3.sendIdx["@"]=1;
 //>>excludeEnd("ctx");
-$6=$recv($7)._at_($8);
+$5=$recv($6)._at_($7);
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx3.sendIdx["at:"]=1;
 //>>excludeEnd("ctx");
-$5=$recv($6).__eq("wall");
-if($core.assert($5)){
+$4=$recv($5).__eq("wall");
+if($core.assert($4)){
 return "█";
 } else {
 return $recv($globals.String)._fromCharCode_($recv("0"._charCodeAt_((1))).__plus($recv($self["@board"])._at_($recv(x).__at(y))));
@@ -2193,8 +2248,8 @@ return $recv($globals.String)._fromCharCode_($recv("0"._charCodeAt_((1))).__plus
 }, function($ctx3) {$ctx3.fillBlock({x:x},$ctx2,2)});
 //>>excludeEnd("ctx");
 }));
-$recv($4)._add_($recv($globals.String)._crlf());
-return $recv($4)._yourself();
+$recv($3)._add_($recv($globals.String)._crlf());
+return $recv($3)._yourself();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx2) {$ctx2.fillBlock({y:y},$ctx1,1)});
 //>>excludeEnd("ctx");
@@ -2202,18 +2257,17 @@ return $recv($4)._yourself();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["collect:"]=1;
 //>>excludeEnd("ctx");
-$recv($1)._with_($2);
-return self;
+return $1;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx1) {$ctx1.fill(self,"renderDebugOn:",{html:html},$globals.MapGenerator)});
+}, function($ctx1) {$ctx1.fill(self,"renderDebug",{},$globals.MapGenerator)});
 //>>excludeEnd("ctx");
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
-args: ["html"],
-source: "renderDebugOn: html\x0a\x09html pre\x0a\x09\x09with: ((1 to: board height) collect: [ :y |\x0a \x09\x09\x09\x09((1 to: board width) collect: [ :x |\x0a\x09\x09\x09 \x09\x09((board at: x@y) = #wall\x0a\x09\x09\x09\x09\x09\x09ifTrue: [ '█']\x0a\x09\x09\x09\x09\x09\x09ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) ]) ])\x0a\x09\x09\x09\x09\x09\x09\x09add: String crlf;\x0a\x09\x09\x09\x09\x09\x09\x09yourself ] )",
+args: [],
+source: "renderDebug\x0a\x09^ (1 to: board height) collect: [ :y |\x0a \x09\x09((1 to: board width) collect: [ :x |\x0a\x09 \x09\x09((board at: x@y) = #wall\x0a\x09\x09\x09\x09ifTrue: [ '█']\x0a\x09\x09\x09\x09ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) ]) ])\x0a\x09\x09\x09\x09\x09add: String crlf;\x0a\x09\x09\x09\x09\x09yourself ]",
 referencedClasses: ["String"],
 //>>excludeEnd("ide");
-messageSends: ["with:", "pre", "collect:", "to:", "height", "add:", "width", "ifTrue:ifFalse:", "=", "at:", "@", "fromCharCode:", "+", "charCodeAt:", "crlf", "yourself"]
+messageSends: ["collect:", "to:", "height", "add:", "width", "ifTrue:ifFalse:", "=", "at:", "@", "fromCharCode:", "+", "charCodeAt:", "crlf", "yourself"]
 }),
 $globals.MapGenerator);
 
@@ -2226,44 +2280,9 @@ var self=this,$self=this;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
-var $1,$3,$5,$4,$6,$2;
+var $1;
 $1=$recv(html)._pre();
-$3=(1)._to_($recv($self["@board"])._height());
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-$ctx1.sendIdx["to:"]=1;
-//>>excludeEnd("ctx");
-$2=$recv($3)._collect_((function(y){
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-return $core.withContext(function($ctx2) {
-//>>excludeEnd("ctx");
-$4=$recv((1)._to_($recv($self["@board"])._width()))._collect_((function(x){
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-return $core.withContext(function($ctx3) {
-//>>excludeEnd("ctx");
-$5=$recv($recv($self["@board"])._at_($recv(x).__at(y))).__eq("wall");
-if($core.assert($5)){
-return "█";
-} else {
-return "░";
-}
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx3) {$ctx3.fillBlock({x:x},$ctx2,2)});
-//>>excludeEnd("ctx");
-}));
-$recv($4)._add_($recv($globals.String)._crlf());
-$6=$recv($4)._yourself();
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-$ctx2.sendIdx["yourself"]=1;
-//>>excludeEnd("ctx");
-return $6;
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx2) {$ctx2.fillBlock({y:y},$ctx1,1)});
-//>>excludeEnd("ctx");
-}));
-//>>excludeStart("ctx", pragmas.excludeDebugContexts);
-$ctx1.sendIdx["collect:"]=1;
-//>>excludeEnd("ctx");
-$recv($1)._with_($2);
+$recv($1)._with_($self._render());
 $recv($1)._class_("map");
 $self["@output"]=$recv($1)._yourself();
 return self;
@@ -2273,10 +2292,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: ["html"],
-source: "renderOn: html\x0a\x09\x22html button\x0a\x09\x09with: '++';\x0a\x09\x09onClick: [].\x22\x0a\x09output := html pre\x0a\x09\x09with: ((1 to: board height) collect: [ :y |\x0a \x09\x09\x09\x09((1 to: board width) collect: [ :x |\x0a\x09\x09\x09 \x09\x09((board at: x@y) = #wall\x0a\x09\x09\x09\x09\x09\x09ifTrue: [ '█']\x0a\x09\x09\x09\x09\x09\x09ifFalse: [ '░' ]) ])\x0a\x09\x09\x09\x09\x09\x09\x09add: String crlf;\x0a\x09\x09\x09\x09\x09\x09\x09yourself ] );\x0a\x09\x09class: 'map';\x0a\x09\x09yourself",
-referencedClasses: ["String"],
+source: "renderOn: html\x0a\x09output := html pre\x0a\x09\x09with: self render;\x0a\x09\x09class: 'map';\x0a\x09\x09yourself",
+referencedClasses: [],
 //>>excludeEnd("ide");
-messageSends: ["with:", "pre", "collect:", "to:", "height", "add:", "width", "ifTrue:ifFalse:", "=", "at:", "@", "crlf", "yourself", "class:"]
+messageSends: ["with:", "pre", "render", "class:", "yourself"]
 }),
 $globals.MapGenerator);
 
@@ -2312,7 +2331,7 @@ $recv($self["@output"])._contents_((function(h){
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx2) {
 //>>excludeEnd("ctx");
-return $self._renderOn_(h);
+return $recv(h)._with_($self._render());
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx2) {$ctx2.fillBlock({h:h},$ctx1,1)});
 //>>excludeEnd("ctx");
@@ -2324,10 +2343,10 @@ return self;
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "update\x0a\x09output contents: [ :h | self renderOn: h ]",
+source: "update\x0a\x09output contents: [ :h | h with: self render ]",
 referencedClasses: [],
 //>>excludeEnd("ide");
-messageSends: ["contents:", "renderOn:"]
+messageSends: ["contents:", "with:", "render"]
 }),
 $globals.MapGenerator);
 

@@ -386,6 +386,7 @@ initialize
 	board ifNil: [ board := (Board width: 45 height: 45)].
 	roomAttempts := 30.
 	chanceToTurn := 10.
+	output := '#dungeon' asJQuery
 ! !
 
 !MapGenerator methodsFor: 'merging'!
@@ -439,35 +440,35 @@ printDebug
 
 !MapGenerator methodsFor: 'rendering'!
 
-renderDebugOn: html
-	html pre
-		with: ((1 to: board height) collect: [ :y |
- 				((1 to: board width) collect: [ :x |
-			 		((board at: x@y) = #wall
-						ifTrue: [ '█']
-						ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) ]) ])
-							add: String crlf;
-							yourself ] )
+render
+	^ (1 to: board height) collect: [ :y |
+ 		((1 to: board width) collect: [ :x |
+			((board at: x@y) = #wall
+				ifTrue: [ '█']
+				ifFalse: [ '░' ]) ])
+					add: String crlf;
+					yourself ]
+!
+
+renderDebug
+	^ (1 to: board height) collect: [ :y |
+ 		((1 to: board width) collect: [ :x |
+	 		((board at: x@y) = #wall
+				ifTrue: [ '█']
+				ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) ]) ])
+					add: String crlf;
+					yourself ]
 !
 
 renderOn: html
-	"html button
-		with: '++';
-		onClick: []."
 	output := html pre
-		with: ((1 to: board height) collect: [ :y |
- 				((1 to: board width) collect: [ :x |
-			 		((board at: x@y) = #wall
-						ifTrue: [ '█']
-						ifFalse: [ '░' ]) ])
-							add: String crlf;
-							yourself ] );
+		with: self render;
 		class: 'map';
 		yourself
 !
 
 update
-	output contents: [ :h | self renderOn: h ]
+	output contents: [ :h | h with: self render ]
 ! !
 
 !MapGenerator class methodsFor: 'instance creation'!
