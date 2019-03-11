@@ -1,7 +1,7 @@
 Smalltalk createPackage: 'MiniRogue'!
 (Smalltalk packageAt: 'MiniRogue' ifAbsent: [ self error: 'Package not created: MiniRogue' ]) imports: {'./MiniRogue-Engine'. 'amber/jquery/Wrappers-JQuery'. 'amber/web/Web'. 'silk/Silk'}!
 Object subclass: #MiniRogue
-	instanceVariableNames: ''
+	instanceVariableNames: 'mapWidget generator board boardWidget'
 	package: 'MiniRogue'!
 !MiniRogue commentStamp!
 I am the Amber application.
@@ -18,26 +18,32 @@ initialize
 !MiniRogue methodsFor: 'starting'!
 
 augmentPage
-	| map |
-	
 	'#generateBtn' asJQuery
 		click: [
 			| w h |
 			
 			w := '#width' asJQuery val asNumber.
 			h := '#height' asJQuery val asNumber.
-			map
+			board := generator
 				board: (Board extent: w@h);
 				roomAttempts: '#attempts' asJQuery val asNumber;
 				chanceToFill: '#chance' asJQuery val asNumber;
 				chanceToTurn: '#turn' asJQuery val asNumber;
 				chanceToExtraConnections: '#connections' asJQuery val asNumber;
-				generate;
-				update ].
-	map := MapGenerator new generate appendToJQuery: '#dungeon' asJQuery
+				generate.
+			boardWidget
+				board: board;
+				redraw ].
+	'#updateBtn' asJQuery
+		click: [ board update ].
+	generator := DungeonGenerator new.
+	board := generator generate.
+	boardWidget := (BoardWidget on: board)
+		appendToJQuery: '#dungeon' asJQuery;
+		yourself
 ! !
 
-MiniRogue class instanceVariableNames: 'instance2 instance'!
+MiniRogue class instanceVariableNames: 'instance'!
 
 !MiniRogue class methodsFor: 'starting'!
 

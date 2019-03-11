@@ -1,6 +1,6 @@
 Smalltalk createPackage: 'MiniRogue-Engine'!
 Object subclass: #Board
-	instanceVariableNames: 'width height data'
+	instanceVariableNames: 'width height data player'
 	package: 'MiniRogue-Engine'!
 
 !Board methodsFor: 'accessing'!
@@ -53,6 +53,10 @@ inside
 	^ (2@2 corner: (width @ height) - (1@1))
 !
 
+player
+	^ player ifNil:[ player := 2@2 ]
+!
+
 width
 	^ width
 !
@@ -86,7 +90,75 @@ fillWith: anObject
 initialize
 	super initialize.
 	(width isNil or: [ height isNil ]) ifTrue: [ self error: 'Create instances of ', self class name, ' with #width:height: or #extent:' ].
-	data := Array new
+	data := Array new.
+	player := 2@2
+! !
+
+!Board methodsFor: 'operating'!
+
+movePlayer
+	| oldP oldId p id |
+	
+	oldP := player.
+	oldId := '#cell-', player x, '-', player y.
+	player := ((width - 2) atRandom + 1) @ ((height - 2) atRandom + 1).
+	id := '#cell-', player x, '-', player y.
+	
+	oldId asSilk resetContents SPAN: ((self at: oldP) = #wall ifTrue: [ '█' ] ifFalse: [ '░' ]).
+	id asSilk resetContents SPAN: '@'
+!
+
+movePlayer: aPoint
+	| oldP oldId p id |
+	
+	oldP := player.
+	oldId := '#cell-', player x, '-', player y.
+	player := player + aPoint.
+	id := '#cell-', player x, '-', player y.
+	
+	oldId asSilk resetContents SPAN: ((self at: oldP) = #wall ifTrue: [ '█' ] ifFalse: [ '░' ]).
+	id asSilk resetContents SPAN: '@'
+!
+
+update
+	"stub"
+	self movePlayer
+! !
+
+!Board methodsFor: 'printing'!
+
+print
+	| stream |
+	
+	stream := StringStream on: ''.
+	
+	(1 to: self height) do: [ :y |
+		(1 to: self width) do: [ :x |
+			stream
+				nextPut: (((self at: x@y) = #wall)
+					ifTrue: [ '█' ]
+					ifFalse: [ ' ' ]) ].
+		stream crlf ].
+	console
+		"clear;"
+		log: stream contents
+!
+
+printDebug
+	| stream |
+	
+	stream := StringStream on: ''.
+	
+	(1 to: self height) do: [ :y |
+		(1 to: self width) do: [ :x |
+			stream
+				nextPut: (((self at: x@y) = #wall)
+					ifTrue: [ '█']
+					ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (self at: x@y) "' '" ]) ].
+		stream crlf ].
+	console
+		"clear;"
+		log: stream contents
 ! !
 
 !Board methodsFor: 'searching'!
@@ -122,6 +194,287 @@ width: aWidth height: aHeight
 		width: aWidth;
 		height: aHeight;
 		initialize;
+		yourself
+! !
+
+Widget subclass: #BoardWidget
+	instanceVariableNames: 'board output'
+	package: 'MiniRogue-Engine'!
+
+!BoardWidget methodsFor: 'accessing'!
+
+board: aBoard
+	board := aBoard
+! !
+
+!BoardWidget methodsFor: 'initialization'!
+
+initialize
+	super initialize.
+	board ifNil: [ self error: 'Create instances of ', self class name, ' with #on:' ].
+	output := '#dungeon' asJQuery.
+	self setupKeys
+!
+
+setupKeys
+	Key code: 37 onPress: [ board movePlayer: Directions left ] onRelease: [ ].
+	Key code: 38 onPress: [ board movePlayer: Directions up ] onRelease: [ ].
+	Key code: 39 onPress: [ board movePlayer: Directions right ] onRelease: [ ].
+	Key code: 40 onPress: [ board movePlayer: Directions down ] onRelease: [ ]
+! !
+
+!BoardWidget methodsFor: 'rendering'!
+
+palette
+	^ { '#442434'.
+		'#30346d'.
+		'#4e4a4e'.
+		'#854c30'.
+		'#346524'.
+		'#d04648'.
+		'#757161'.
+		'#597dce'.
+		'#d27d2c'.
+		'#8595a1'.
+		'#6daa2c'.
+		'#d2aa99'.
+		'#6dc2ca'.
+		'#dad45e' }
+!
+
+redraw
+	output contents: [ :h | h with: (self renderUsing: h) ]
+!
+
+renderOn: html
+	output := html pre
+		with: (self renderUsing: html);
+		class: 'map';
+		yourself
+!
+
+renderUsing: html
+	^ (1 to: board height)
+		collect: [ :y |
+ 			((1 to: board width) collect: [ :x | self renderX: x Y: y using: html ])
+				add: String crlf;
+				yourself ]
+!
+
+renderX: x Y: y using: html
+	| p cell region |
+	
+	p := x@y.
+	region := board at: p.
+	cell := html
+		span: (board player = p
+			ifTrue: [ '@' ]
+			ifFalse: [ (region = #wall
+				ifTrue: [ '█' ]
+				ifFalse: [ '░' ]) ] ).
+	region ~= #wall
+		ifTrue: [ cell style: 'color: ', (self palette at: region \\ self palette size + 1) ]
+		ifFalse: [ cell class: 'wall' ].
+	cell id: 'cell-', x, '-', y.
+	^ cell
+! !
+
+!BoardWidget class methodsFor: 'instance creation'!
+
+on: aBoard
+	^ self basicNew
+		board: aBoard;
+		initialize;
+		yourself
+! !
+
+Object subclass: #Directions
+	instanceVariableNames: ''
+	package: 'MiniRogue-Engine'!
+
+!Directions class methodsFor: 'as yet unclassified'!
+
+down
+	^ 0@1
+!
+
+left
+	^ -1@0
+!
+
+right
+	^ 1@0
+!
+
+up
+	^ 0 @ -1
+! !
+
+Object subclass: #Key
+	instanceVariableNames: 'code'
+	package: 'MiniRogue-Engine'!
+
+!Key methodsFor: 'accessing'!
+
+code
+	^ code
+!
+
+code: anObject
+	code := anObject
+! !
+
+!Key methodsFor: 'binding'!
+
+onPress: aBlock
+	Keyboard bind: self code to: aBlock
+!
+
+onRelease: aBlock
+	Keyboard bindRelease: self code to: aBlock
+! !
+
+!Key methodsFor: 'testing'!
+
+isDown
+	^ Keyboard pressed: self code
+!
+
+isUp
+	^ Keyboard notPressed: self code
+! !
+
+!Key class methodsFor: 'instance creation'!
+
+code: aNumber onPress: aBlock onRelease: anotherBlock
+	"Returns a fully configured Key instance"
+	
+	^ Keyboard code: aNumber onPress: aBlock onRelease: anotherBlock
+! !
+
+Object subclass: #Keyboard
+	instanceVariableNames: 'keys blocks releaseBlocks'
+	package: 'MiniRogue-Engine'!
+
+!Keyboard methodsFor: 'accessing'!
+
+blocks
+	^ blocks
+!
+
+blocks: anObject
+	blocks := anObject
+!
+
+keys
+	^ keys
+!
+
+keys: anObject
+	keys := anObject
+!
+
+releaseBlocks
+	^ releaseBlocks
+!
+
+releaseBlocks: anObject
+	releaseBlocks := anObject
+! !
+
+!Keyboard methodsFor: 'binding'!
+
+bind: aKey to: aBlock
+	blocks at: aKey put: aBlock
+!
+
+bindRelease: aKey to: aBlock
+	releaseBlocks at: aKey put: aBlock
+!
+
+unbind: aKey
+	blocks removeKey: aKey ifAbsent: []
+! !
+
+!Keyboard methodsFor: 'event handling'!
+
+onPress: anEvent
+	| code |
+	
+	code := anEvent keyCode.
+	self press: code.
+	blocks at: code ifPresent: [ :block | block value: anEvent. anEvent preventDefault ] ifAbsent: []
+!
+
+onRelease: anEvent
+	| code |
+	
+	code := anEvent keyCode.
+	self release: code.
+	releaseBlocks at: code ifPresent: [ :block | block value: anEvent ] ifAbsent: [].
+	anEvent preventDefault
+! !
+
+!Keyboard methodsFor: 'initialization'!
+
+initialize
+	super initialize.
+	keys := #{}.
+	blocks := #{}.
+	releaseBlocks := #{}.
+	window addEventListener: 'keydown' func: [ :event | self onPress: event ] capture: false.
+	window addEventListener: 'keyup' func: [ :event | self onRelease: event ] capture: false
+! !
+
+!Keyboard methodsFor: 'testing'!
+
+notPressed: aKeyCode
+	^ (self pressed: aKeyCode) not
+!
+
+press: aKeyCode
+	keys at: aKeyCode put: true
+!
+
+pressed: aKeyCode
+	^ keys at: aKeyCode ifAbsent: [ keys at: aKeyCode put: false ]
+!
+
+release: aKeyCode
+	keys at: aKeyCode put: false
+! !
+
+Keyboard class instanceVariableNames: 'instance'!
+
+!Keyboard class methodsFor: 'accessing'!
+
+instance
+	^ instance ifNil: [ instance := self new ]
+! !
+
+!Keyboard class methodsFor: 'binding'!
+
+bind: aKey to: aBlock
+	self instance blocks at: aKey put: aBlock
+!
+
+bindRelease: aKey to: aBlock
+	self instance releaseBlocks at: aKey put: aBlock
+!
+
+unbind: aKey
+	self instance blocks removeKey: aKey ifAbsent: []
+! !
+
+!Keyboard class methodsFor: 'instance creation'!
+
+code: aNumber onPress: aBlock onRelease: anotherBlock
+	"Returns a fully configured Key instance"
+	
+	^ Key new
+		code: aNumber;
+		onPress: aBlock;
+		onRelease: anotherBlock;
 		yourself
 ! !
 
@@ -240,8 +593,8 @@ on: aBoard
 		yourself
 ! !
 
-Widget subclass: #MapGenerator
-	instanceVariableNames: 'board carver regions connectors output roomAttempts chanceToFill chanceToTurn chanceToExtraConnections'
+Object subclass: #MapGenerator
+	instanceVariableNames: 'board'
 	package: 'MiniRogue-Engine'!
 
 !MapGenerator methodsFor: 'accessing'!
@@ -249,6 +602,22 @@ Widget subclass: #MapGenerator
 board: anObject
 	board := anObject
 !
+
+directions
+	^ {1 @ 0. -1 @ 0. 0 @ 1. 0 @ -1}
+! !
+
+!MapGenerator methodsFor: 'generating'!
+
+generate
+	self shouldBeImplemented
+! !
+
+MapGenerator subclass: #DungeonGenerator
+	instanceVariableNames: 'carver regions connectors output roomAttempts chanceToFill chanceToTurn chanceToExtraConnections'
+	package: 'MiniRogue-Engine'!
+
+!DungeonGenerator methodsFor: 'accessing'!
 
 chanceToExtraConnections: aNumber
 	chanceToExtraConnections := aNumber
@@ -262,15 +631,28 @@ chanceToTurn: aNumber
 	chanceToTurn := aNumber
 !
 
-directions
-	^ {1 @ 0. -1 @ 0. 0 @ 1. 0 @ -1}
+palette
+	^ { '#442434'.
+		'#30346d'.
+		'#4e4a4e'.
+		'#854c30'.
+		'#346524'.
+		'#d04648'.
+		'#757161'.
+		'#597dce'.
+		'#d27d2c'.
+		'#8595a1'.
+		'#6daa2c'.
+		'#d2aa99'.
+		'#6dc2ca'.
+		'#dad45e' }
 !
 
 roomAttempts: aNumber
 	roomAttempts := aNumber
 ! !
 
-!MapGenerator methodsFor: 'caching'!
+!DungeonGenerator methodsFor: 'caching'!
 
 cacheConnectors
 	connectors := Dictionary new.
@@ -304,7 +686,7 @@ cacheRegions
 			region ~= #wall ifTrue: [ (regions at: region) add: p ] ] ]
 ! !
 
-!MapGenerator methodsFor: 'filling'!
+!DungeonGenerator methodsFor: 'filling'!
 
 fillDeadEnds
 	| deadEnds p |
@@ -320,14 +702,15 @@ fillDeadEnds
 		board fillPassage: each ]
 ! !
 
-!MapGenerator methodsFor: 'generating'!
+!DungeonGenerator methodsFor: 'generating'!
 
 generate
 	board fillWith: #wall.
 	carver := (MapCarver on: board)
 		chanceToTurn: chanceToTurn;
 		yourself.
-	self generateRooms generatePassages cacheRegions mergeRegions fillDeadEnds
+	self generateRooms generatePassages cacheRegions cacheConnectors mergeRegions fillDeadEnds.
+	^ board
 !
 
 generatePassageAt: aPoint
@@ -377,22 +760,45 @@ generateRooms
 					ifTrue: [
 						carver carveRoom: room.
 						rooms add: room ] ] ]
+!
+
+generateStraightPassages
+	"pick a few pairs of regions at random, and attempt
+	to make a direct route between them.
+	choose a direction that brings us closer to the target, then carve in that direction.
+	every step checks if it's level, with a chance of continuing forward even if it is, as long as it's not overshooting.
+	if it's level, turn.
+	
+	alternative algo:
+	
+	select two connectors
+	figure out a 
+	" 
+	| a b |
+	
+	a := connectors atRandom.
+	b := connectors atRandom.
+	a ~= b
+		ifTrue: [
+			connectors
+				valuesDo: [ :points |
+					carver carveAt: points atRandom.
+					[ 100 atRandom < chanceToExtraConnections ]
+						whileTrue: [ carver carveAt: points atRandom ] ] ]
 ! !
 
-!MapGenerator methodsFor: 'initialization'!
+!DungeonGenerator methodsFor: 'initialization'!
 
 initialize
 	super initialize.
 	board ifNil: [ board := (Board width: 45 height: 45)].
 	roomAttempts := 30.
-	chanceToTurn := 10.
-	output := '#dungeon' asJQuery
+	chanceToTurn := 10
 ! !
 
-!MapGenerator methodsFor: 'merging'!
+!DungeonGenerator methodsFor: 'merging'!
 
 mergeRegions
-	self cacheConnectors.
 	connectors
 		valuesDo: [ :points |
 			carver carveAt: points atRandom.
@@ -402,81 +808,31 @@ mergeRegions
 					carver carveAt: points atRandom ] ]
 ! !
 
-!MapGenerator methodsFor: 'printing'!
+!DungeonGenerator class methodsFor: 'instance creation'!
 
-print
-	| stream |
-	
-	stream := StringStream on: ''.
-	
-	(1 to: board height) do: [ :y |
-		(1 to: board width) do: [ :x |
-			stream
-				nextPut: (((board at: x@y) = #wall)
-					ifTrue: [ '█']
-					ifFalse: [ "String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y)" ' ' ]) ].
-		stream crlf ].
-	console
-		"clear;"
-		log: stream contents
-!
-
-printDebug
-	| stream |
-	
-	stream := StringStream on: ''.
-	
-	(1 to: board height) do: [ :y |
-		(1 to: board width) do: [ :x |
-			stream
-				nextPut: (((board at: x@y) = #wall)
-					ifTrue: [ '█']
-					ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) "' '" ]) ].
-		stream crlf ].
-	console
-		"clear;"
-		log: stream contents
+board: anObject
+	board := anObject
 ! !
 
-!MapGenerator methodsFor: 'rendering'!
+Widget subclass: #MapGeneratorWidget
+	instanceVariableNames: 'output'
+	package: 'MiniRogue-Engine'!
 
-render
-	^ (1 to: board height) collect: [ :y |
- 		((1 to: board width) collect: [ :x |
-			((board at: x@y) = #wall
-				ifTrue: [ '█']
-				ifFalse: [ '░' ]) ])
-					add: String crlf;
-					yourself ]
-!
-
-renderDebug
-	^ (1 to: board height) collect: [ :y |
- 		((1 to: board width) collect: [ :x |
-	 		((board at: x@y) = #wall
-				ifTrue: [ '█']
-				ifFalse: [ String fromCharCode: ('0' charCodeAt: 1) + (board at: x@y) ]) ])
-					add: String crlf;
-					yourself ]
-!
+!MapGeneratorWidget methodsFor: 'rendering'!
 
 renderOn: html
 	output := html pre
-		with: self render;
+		with: (self renderUsing: html);
 		class: 'map';
 		yourself
 !
 
-update
-	output contents: [ :h | h with: self render ]
-! !
-
-!MapGenerator class methodsFor: 'instance creation'!
-
-extent: aPoint
-	^ self basicNew
-		board: (Board extent: aPoint);
-		initialize;
-		yourself
+renderX: x Y: y using: html
+	| cell |
+	
+	cell := html span: 3
+	cell style: 'color: ', 1000000.
+	cell id: 'cell-', x, '-', y.
+	^ cell
 ! !
 

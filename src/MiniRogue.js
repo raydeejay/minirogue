@@ -14,7 +14,7 @@ $pkg.innerEval = function (expr) { return eval(expr); };
 $pkg.imports = ["./MiniRogue-Engine", "amber/jquery/Wrappers-JQuery", "amber/web/Web", "silk/Silk"];
 $pkg.transport = {"type":"amd","amdNamespace":"amber-minirogue"};
 
-$core.addClass("MiniRogue", $globals.Object, [], "MiniRogue");
+$core.addClass("MiniRogue", $globals.Object, ["mapWidget", "generator", "board", "boardWidget"], "MiniRogue");
 //>>excludeStart("ide", pragmas.excludeIdeData);
 $globals.MiniRogue.comment="I am the Amber application.\x0a\x0aI also happen to subclass Game.";
 //>>excludeEnd("ide");
@@ -24,11 +24,10 @@ selector: "augmentPage",
 protocol: "starting",
 fn: function (){
 var self=this,$self=this;
-var map;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 return $core.withContext(function($ctx1) {
 //>>excludeEnd("ctx");
-var $1,$3,$2,$5,$4,$6,$9,$8,$7,$12,$11,$10,$15,$14,$13,$18,$17,$16;
+var $1,$3,$2,$5,$4,$6,$9,$8,$7,$12,$11,$10,$15,$14,$13,$18,$17,$16,$19,$20,$21,$22;
 $1="#generateBtn"._asJQuery();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx1.sendIdx["asJQuery"]=1;
@@ -62,8 +61,11 @@ h=$recv($4)._asNumber();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx2.sendIdx["asNumber"]=2;
 //>>excludeEnd("ctx");
-$6=map;
+$6=$self["@generator"];
 $recv($6)._board_($recv($globals.Board)._extent_($recv(w).__at(h)));
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx2.sendIdx["board:"]=1;
+//>>excludeEnd("ctx");
 $9="#attempts"._asJQuery();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx2.sendIdx["asJQuery"]=4;
@@ -110,27 +112,50 @@ $ctx2.sendIdx["asJQuery"]=7;
 $17=$recv($18)._val();
 $16=$recv($17)._asNumber();
 $recv($6)._chanceToExtraConnections_($16);
-$recv($6)._generate();
+$19=$recv($6)._generate();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 $ctx2.sendIdx["generate"]=1;
 //>>excludeEnd("ctx");
-return $recv($6)._update();
+$self["@board"]=$19;
+$20=$self["@boardWidget"];
+$recv($20)._board_($self["@board"]);
+return $recv($20)._redraw();
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
 }, function($ctx2) {$ctx2.fillBlock({w:w,h:h},$ctx1,1)});
 //>>excludeEnd("ctx");
 }));
-map=$recv($recv($recv($globals.MapGenerator)._new())._generate())._appendToJQuery_("#dungeon"._asJQuery());
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["click:"]=1;
+//>>excludeEnd("ctx");
+$21="#updateBtn"._asJQuery();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+$ctx1.sendIdx["asJQuery"]=8;
+//>>excludeEnd("ctx");
+$recv($21)._click_((function(){
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+return $core.withContext(function($ctx2) {
+//>>excludeEnd("ctx");
+return $recv($self["@board"])._update();
+//>>excludeStart("ctx", pragmas.excludeDebugContexts);
+}, function($ctx2) {$ctx2.fillBlock({},$ctx1,2)});
+//>>excludeEnd("ctx");
+}));
+$self["@generator"]=$recv($globals.DungeonGenerator)._new();
+$self["@board"]=$recv($self["@generator"])._generate();
+$22=$recv($globals.BoardWidget)._on_($self["@board"]);
+$recv($22)._appendToJQuery_("#dungeon"._asJQuery());
+$self["@boardWidget"]=$recv($22)._yourself();
 return self;
 //>>excludeStart("ctx", pragmas.excludeDebugContexts);
-}, function($ctx1) {$ctx1.fill(self,"augmentPage",{map:map},$globals.MiniRogue)});
+}, function($ctx1) {$ctx1.fill(self,"augmentPage",{},$globals.MiniRogue)});
 //>>excludeEnd("ctx");
 },
 //>>excludeStart("ide", pragmas.excludeIdeData);
 args: [],
-source: "augmentPage\x0a\x09| map |\x0a\x09\x0a\x09'#generateBtn' asJQuery\x0a\x09\x09click: [\x0a\x09\x09\x09| w h |\x0a\x09\x09\x09\x0a\x09\x09\x09w := '#width' asJQuery val asNumber.\x0a\x09\x09\x09h := '#height' asJQuery val asNumber.\x0a\x09\x09\x09map\x0a\x09\x09\x09\x09board: (Board extent: w@h);\x0a\x09\x09\x09\x09roomAttempts: '#attempts' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToFill: '#chance' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToTurn: '#turn' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToExtraConnections: '#connections' asJQuery val asNumber;\x0a\x09\x09\x09\x09generate;\x0a\x09\x09\x09\x09update ].\x0a\x09map := MapGenerator new generate appendToJQuery: '#dungeon' asJQuery",
-referencedClasses: ["Board", "MapGenerator"],
+source: "augmentPage\x0a\x09'#generateBtn' asJQuery\x0a\x09\x09click: [\x0a\x09\x09\x09| w h |\x0a\x09\x09\x09\x0a\x09\x09\x09w := '#width' asJQuery val asNumber.\x0a\x09\x09\x09h := '#height' asJQuery val asNumber.\x0a\x09\x09\x09board := generator\x0a\x09\x09\x09\x09board: (Board extent: w@h);\x0a\x09\x09\x09\x09roomAttempts: '#attempts' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToFill: '#chance' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToTurn: '#turn' asJQuery val asNumber;\x0a\x09\x09\x09\x09chanceToExtraConnections: '#connections' asJQuery val asNumber;\x0a\x09\x09\x09\x09generate.\x0a\x09\x09\x09boardWidget\x0a\x09\x09\x09\x09board: board;\x0a\x09\x09\x09\x09redraw ].\x0a\x09'#updateBtn' asJQuery\x0a\x09\x09click: [ board update ].\x0a\x09generator := DungeonGenerator new.\x0a\x09board := generator generate.\x0a\x09boardWidget := (BoardWidget on: board)\x0a\x09\x09appendToJQuery: '#dungeon' asJQuery;\x0a\x09\x09yourself",
+referencedClasses: ["Board", "DungeonGenerator", "BoardWidget"],
 //>>excludeEnd("ide");
-messageSends: ["click:", "asJQuery", "asNumber", "val", "board:", "extent:", "@", "roomAttempts:", "chanceToFill:", "chanceToTurn:", "chanceToExtraConnections:", "generate", "update", "appendToJQuery:", "new"]
+messageSends: ["click:", "asJQuery", "asNumber", "val", "board:", "extent:", "@", "roomAttempts:", "chanceToFill:", "chanceToTurn:", "chanceToExtraConnections:", "generate", "redraw", "update", "new", "appendToJQuery:", "on:", "yourself"]
 }),
 $globals.MiniRogue);
 
@@ -167,7 +192,7 @@ messageSends: ["initialize", "instance:", "class"]
 $globals.MiniRogue);
 
 
-$globals.MiniRogue.a$cls.iVarNames = ["instance2", "instance"];
+$globals.MiniRogue.a$cls.iVarNames = ["instance"];
 $core.addMethod(
 $core.method({
 selector: "instance",
