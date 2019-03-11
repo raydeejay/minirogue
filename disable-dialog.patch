@@ -1,0 +1,15 @@
+--- devindex.html	2019-03-11 14:13:32.229756482 +0000
++++ index.html	2019-03-11 14:12:54.129450203 +0000
+@@ -37,9 +37,9 @@
+               //used for all new packages in IDE
+               'transport.defaultAmdNamespace': "amber-minirogue"
+           }).then(function () {
+-              require(["amber-ide-starter-dialog"], function (dlg) {
+-                  dlg.start();
+-              });
++//              require(["amber-ide-starter-dialog"], function (dlg) {
++//                  dlg.start();
++//              });
+               amber.globals.MiniRogue._start();
+           });
+       });
